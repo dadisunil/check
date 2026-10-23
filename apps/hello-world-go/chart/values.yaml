@@ -1,0 +1,3 @@
+image: hello-world-go
+replicas: 1
+env: dev

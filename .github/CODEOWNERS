@@ -1,0 +1,4 @@
+# Prod overlays need review from the owner (replace with a team in a real org)
+/flux/apps/hello/prod/         @dadisunil
+/flux/apps/hello/prod-canary/  @dadisunil
+/.github/                      @dadisunil

@@ -1,0 +1,39 @@
+name: promote
+# staging -> prod-canary -> prod. Each step opens a PR (peer review) from a protected GitHub Environment (manual approval).
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Environment to promote into
+        type: choice
+        options: [prod-canary, prod]
+        required: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.target }}   # configure required reviewers on these environments
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pick source env tag (canary gets staging's tag, prod gets canary's tag)
+        id: src
+        run: |
+          src=staging; [ "${{ inputs.target }}" = "prod" ] && src=prod-canary
+          echo "tag=$(yq '.images[0].newTag' flux/apps/hello/$src/kustomization.yaml)" >> "$GITHUB_OUTPUT"
+      - name: Verify image signature before promoting
+        uses: sigstore/cosign-installer@v3.7.0
+      - run: |
+          cosign verify ghcr.io/${{ github.repository_owner }}/hello-world-go:${{ steps.src.outputs.tag }} \
+            --certificate-identity-regexp "https://github.com/${{ github.repository }}/.*" \
+            --certificate-oidc-issuer https://token.actions.githubusercontent.com
+      - run: yq -i '.images[0].newTag = "${{ steps.src.outputs.tag }}"' flux/apps/hello/${{ inputs.target }}/kustomization.yaml
+      - uses: peter-evans/create-pull-request@v7
+        with:
+          branch: promote/${{ inputs.target }}-${{ steps.src.outputs.tag }}
+          title: "promote(${{ inputs.target }}): hello-world-go ${{ steps.src.outputs.tag }}"
+          body: "Promotes the signed, scanned image to ${{ inputs.target }}. Merge to let Flux roll it out."
+          commit-message: "promote(${{ inputs.target }}): ${{ steps.src.outputs.tag }}"

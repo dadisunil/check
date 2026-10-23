@@ -1,0 +1,15 @@
+kind: Build
+name: hello-world-go
+type: container
+---
+kind: Deploy
+name: hello-world-go
+type: helm
+dependencies: [build.hello-world-go]
+spec:
+  chart:
+    path: ./chart
+  releaseName: hello-world-go
+  values:
+    image: ${actions.build.hello-world-go.outputs.deployment-image-id}
+    env: dev

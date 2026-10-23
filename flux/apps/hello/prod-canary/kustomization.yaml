@@ -1,0 +1,10 @@
+namespace: prod-canary   # stands in for the canary cluster (us0) that gets prod changes first
+resources: [../base]
+images:
+  - name: hello-world-go
+    newName: ghcr.io/dadisunil/hello-world-go
+    newTag: bootstrap   # set by the promote workflow (PR)
+patches:
+  - target: { kind: Rollout, name: hello }
+    patch: |-
+      - { op: replace, path: /spec/template/spec/containers/0/env/0/value, value: prod-canary }

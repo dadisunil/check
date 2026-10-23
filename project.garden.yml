@@ -1,0 +1,12 @@
+apiVersion: garden.io/v1
+kind: Project
+name: uniphore-lab
+defaultEnvironment: dev
+environments:
+  - name: dev
+    # Same idea as Uniphore: namespace = your $USER
+    defaultNamespace: dev-${lower(local.username)}
+providers:
+  - name: local-kubernetes
+    context: kind-uniphore-lab
+    namespace: dev-${lower(local.username)}

@@ -1,0 +1,46 @@
+# GitRepository "flux-system" is created by `flux bootstrap github` (scripts/04-github-flux.ps1).
+# Platform add-ons first (Argo Rollouts CRDs), then apps in promotion order.
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata: { name: infra, namespace: flux-system }
+spec:
+  interval: 5m
+  path: ./flux/infra
+  prune: true
+  wait: true
+  sourceRef: { kind: GitRepository, name: flux-system }
+---
+# Staging: continuous delivery (blue/green)
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata: { name: hello-staging, namespace: flux-system }
+spec:
+  interval: 1m
+  path: ./flux/apps/hello/staging
+  prune: true
+  dependsOn: [{ name: infra }]
+  sourceRef: { kind: GitRepository, name: flux-system }
+---
+# Prod canary first (canary steps inside, canary "cluster" outside)
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata: { name: hello-prod-canary, namespace: flux-system }
+spec:
+  interval: 1m
+  path: ./flux/apps/hello/prod-canary
+  prune: true
+  dependsOn: [{ name: infra }]
+  sourceRef: { kind: GitRepository, name: flux-system }
+  healthChecks:
+    - { apiVersion: argoproj.io/v1alpha1, kind: Rollout, name: hello, namespace: prod-canary }
+---
+# Prod only reconciles once the canary is healthy
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata: { name: hello-prod, namespace: flux-system }
+spec:
+  interval: 1m
+  path: ./flux/apps/hello/prod
+  prune: true
+  dependsOn: [{ name: hello-prod-canary }]
+  sourceRef: { kind: GitRepository, name: flux-system }

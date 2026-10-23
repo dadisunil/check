@@ -1,0 +1,11 @@
+namespace: prod
+resources: [../base]
+images:
+  - name: hello-world-go
+    newName: ghcr.io/dadisunil/hello-world-go
+    newTag: bootstrap   # set by the promote workflow (PR)
+patches:
+  - target: { kind: Rollout, name: hello }
+    patch: |-
+      - { op: replace, path: /spec/template/spec/containers/0/env/0/value, value: prod }
+      - { op: replace, path: /spec/replicas, value: 6 }
