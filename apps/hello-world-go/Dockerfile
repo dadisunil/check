@@ -1,4 +1,4 @@
-FROM golang:1.22-alpine AS build
+FROM golang:1.25-alpine AS build
 WORKDIR /src
 COPY main.go .
 RUN go mod init hello && CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /hello .
