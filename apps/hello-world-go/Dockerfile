@@ -1,4 +1,5 @@
-FROM golang:1.22-alpine AS build
+# The Go standard library is compiled INTO the binary, so the toolchain version decides which stdlib CVEs ship.
+FROM golang:1.26-alpine AS build
 WORKDIR /src
 COPY go.mod main.go ./
 RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /hello .
