@@ -32,7 +32,7 @@ jobs:
 
       # --- Shift-left checks ---
       - name: Lint Dockerfile
-        uses: hadolint/hadolint-action@v3.1.0
+        uses: hadolint/hadolint-action@v3.5.0
         with: { dockerfile: apps/hello-world-go/Dockerfile }
       - name: Helm lint
         run: helm lint apps/hello-world-go/chart
