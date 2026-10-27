@@ -25,7 +25,7 @@ jobs:
     outputs:
       tag: ${{ steps.meta.outputs.tag }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - id: meta
         run: echo "tag=sha-${GITHUB_SHA::8}" >> "$GITHUB_OUTPUT"
@@ -97,7 +97,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions: { contents: write }
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Bump staging image tag
         env: { TAG: '${{ needs.build-scan-push.outputs.tag }}' }
         run: |
