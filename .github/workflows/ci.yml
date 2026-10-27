@@ -41,6 +41,8 @@ jobs:
         with:
           scan-type: config
           scan-ref: .
+          # Skip generated/third-party (Flux's own manifests) and lab-only stand-ins for managed DBs
+          skip-dirs: flux/clusters/lab/flux-system,manifests
           severity: HIGH,CRITICAL
           exit-code: '1'
       - name: Secret scan
