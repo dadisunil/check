@@ -31,7 +31,7 @@ jobs:
             --certificate-identity-regexp "https://github.com/${{ github.repository }}/.*" \
             --certificate-oidc-issuer https://token.actions.githubusercontent.com
       - run: yq -i '.images[0].newTag = "${{ steps.src.outputs.tag }}"' flux/apps/hello/${{ inputs.target }}/kustomization.yaml
-      - uses: peter-evans/create-pull-request@v7
+      - uses: peter-evans/create-pull-request@v8
         with:
           branch: promote/${{ inputs.target }}-${{ steps.src.outputs.tag }}
           title: "promote(${{ inputs.target }}): hello-world-go ${{ steps.src.outputs.tag }}"
