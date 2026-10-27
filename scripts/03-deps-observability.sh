@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 LAB="$(cd "$(dirname "$0")/.." && pwd)"
+# Never apply to whatever context happens to be current (your kubeconfig may hold real prod contexts)
+kubectl config use-context kind-uniphore-lab
 kubectl apply -f "$(cygpath -w "$LAB/manifests/deps.yaml")"
 
 # Datadog stand-in: Prometheus + Grafana (trimmed to save RAM)

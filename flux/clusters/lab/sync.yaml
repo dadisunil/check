@@ -33,6 +33,16 @@ spec:
   sourceRef: { kind: GitRepository, name: flux-system }
   healthChecks:
     - { apiVersion: argoproj.io/v1alpha1, kind: Rollout, name: hello, namespace: prod-canary }
+  # Flux's built-in health check (kstatus) cannot read Argo Rollouts: Rollouts writes
+  # status.observedGeneration as a string, so the result is 'Unknown' forever. Teach Flux to read
+  # Rollout's own status.phase instead (CEL expressions, Flux >= 2.5).
+  healthCheckExprs:
+    - apiVersion: argoproj.io/v1alpha1
+      kind: Rollout
+      current: status.phase == 'Healthy'
+      inProgress: status.phase == 'Progressing' || status.phase == 'Paused'
+      failed: status.phase == 'Degraded'
+  timeout: 5m   # canary steps (25%,50%,100% with pauses) take longer than the 30s default
 ---
 # Prod only reconciles once the canary is healthy
 apiVersion: kustomize.toolkit.fluxcd.io/v1

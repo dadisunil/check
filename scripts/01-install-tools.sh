@@ -15,7 +15,7 @@ zip_tool() { # name url path-to-exe-inside-zip
 fetch kind      https://kind.sigs.k8s.io/dl/v0.24.0/kind-windows-amd64 "$BIN/kind.exe"
 fetch yq        https://github.com/mikefarah/yq/releases/download/v4.44.3/yq_windows_amd64.exe "$BIN/yq.exe"
 zip_tool helm      https://get.helm.sh/helm-v3.16.2-windows-amd64.zip windows-amd64/helm.exe
-zip_tool flux      https://github.com/fluxcd/flux2/releases/download/v2.4.0/flux_2.4.0_windows_amd64.zip flux.exe
+zip_tool flux      https://github.com/fluxcd/flux2/releases/download/v2.9.6/flux_2.9.6_windows_amd64.zip flux.exe
 zip_tool k9s       https://github.com/derailed/k9s/releases/download/v0.32.5/k9s_Windows_amd64.zip k9s.exe
 zip_tool terraform https://releases.hashicorp.com/terraform/1.9.8/terraform_1.9.8_windows_amd64.zip terraform.exe
 zip_tool gh        https://github.com/cli/cli/releases/download/v2.60.1/gh_2.60.1_windows_amd64.zip bin/gh.exe
