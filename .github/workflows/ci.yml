@@ -4,7 +4,8 @@ name: ci
 on:
   push:
     branches: [main]
-    paths: ['apps/**']
+    # Also re-run when the pipeline itself changes, so a broken edit to this file is caught
+    paths: ['apps/**', '.github/workflows/ci.yml']
   pull_request:
     paths: ['apps/**', 'flux/**']
 
