@@ -3,9 +3,9 @@ resources: [../base]
 images:
   - name: hello-world-go
     newName: ghcr.io/dadisunil/hello-world-go
-    newTag: bootstrap   # CI bumps this on every merge to main
+    newTag: sha-97773eb8 # CI bumps this on every merge to main
 patches:
-  - target: { kind: Rollout, name: hello }
+  - target: {kind: Rollout, name: hello}
     patch: |-
       - { op: replace, path: /spec/template/spec/containers/0/env/0/value, value: staging }
       # BLUE/GREEN in staging: new version comes up fully on the preview service, then switches over
