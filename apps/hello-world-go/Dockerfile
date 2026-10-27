@@ -1,7 +1,7 @@
 FROM golang:1.22-alpine AS build
 WORKDIR /src
-COPY main.go .
-RUN go mod init hello && CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /hello .
+COPY go.mod main.go ./
+RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /hello .
 
 # Chainguard base: minimal, no shell, runs non-root (approved-base policy)
 FROM cgr.dev/chainguard/static:latest

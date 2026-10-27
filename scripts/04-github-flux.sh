@@ -9,7 +9,9 @@ cd "$(cd "$(dirname "$0")/.." && pwd)"
 kubectl config use-context kind-uniphore-lab
 
 # Fill in the owner placeholder (image paths, CODEOWNERS)
-grep -rl dadisunil --exclude-dir=.git . | xargs -r sed -i "s/dadisunil/$OWNER/g"
+# (placeholder is split so this script doesn't match itself; scripts/ and README are skipped)
+PH="OWNER_""PLACEHOLDER"
+grep -rl "$PH" --exclude-dir=.git --exclude-dir=scripts --exclude=README.md . | xargs -r sed -i "s/$PH/$OWNER/g"
 
 [ -d .git ] || git init -b main
 git add -A
