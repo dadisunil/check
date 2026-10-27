@@ -37,14 +37,14 @@ jobs:
       - name: Helm lint
         run: helm lint apps/hello-world-go/chart
       - name: IaC / manifest misconfiguration scan
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.33.1
         with:
           scan-type: config
           scan-ref: .
           severity: HIGH,CRITICAL
           exit-code: '1'
       - name: Secret scan
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.33.1
         with: { scan-type: fs, scanners: secret, scan-ref: ., exit-code: '1' }
 
       # --- Build once, scan before push ---
@@ -58,7 +58,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - name: Trivy image scan (fail on HIGH/CRITICAL)
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.33.1
         with:
           image-ref: ${{ env.IMAGE }}:${{ steps.meta.outputs.tag }}
           severity: HIGH,CRITICAL
