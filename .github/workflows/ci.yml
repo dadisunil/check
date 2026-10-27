@@ -10,6 +10,7 @@ on:
 
 env:
   IMAGE: ghcr.io/${{ github.repository_owner }}/hello-world-go
+  TRIVY_IMAGE: aquasec/trivy:0.76.1   # pinned; bump deliberately (Dependabot docker ecosystem can't see this line)
 
 permissions:
   contents: read
@@ -36,18 +37,17 @@ jobs:
         with: { dockerfile: apps/hello-world-go/Dockerfile }
       - name: Helm lint
         run: helm lint apps/hello-world-go/chart
+      # Trivy runs from a pinned container image (same one as scripts/05-local-checks.sh), not via
+      # trivy-action: v0.33.1 of the action downloads Trivy v0.65.0, which no longer exists.
       - name: IaC / manifest misconfiguration scan
-        uses: aquasecurity/trivy-action@v0.33.1
-        with:
-          scan-type: config
-          scan-ref: .
-          # Skip generated/third-party (Flux's own manifests) and lab-only stand-ins for managed DBs
-          skip-dirs: flux/clusters/lab/flux-system,manifests
-          severity: HIGH,CRITICAL
-          exit-code: '1'
+        # Skip generated/third-party (Flux's own manifests) and lab-only stand-ins for managed DBs
+        run: |
+          docker run --rm -v "$PWD:/src" -w /src ${{ env.TRIVY_IMAGE }} config \
+            --severity HIGH,CRITICAL --skip-dirs flux/clusters/lab/flux-system,manifests --exit-code 1 .
       - name: Secret scan
-        uses: aquasecurity/trivy-action@v0.33.1
-        with: { scan-type: fs, scanners: secret, scan-ref: ., exit-code: '1' }
+        run: |
+          docker run --rm -v "$PWD:/src" -w /src ${{ env.TRIVY_IMAGE }} fs \
+            --scanners secret --skip-dirs .git --exit-code 1 .
 
       # --- Build once, scan before push ---
       - uses: docker/setup-buildx-action@v3
@@ -60,12 +60,10 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - name: Trivy image scan (fail on HIGH/CRITICAL)
-        uses: aquasecurity/trivy-action@v0.33.1
-        with:
-          image-ref: ${{ env.IMAGE }}:${{ steps.meta.outputs.tag }}
-          severity: HIGH,CRITICAL
-          ignore-unfixed: true
-          exit-code: '1'
+        run: |
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock ${{ env.TRIVY_IMAGE }} image \
+            --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 \
+            ${{ env.IMAGE }}:${{ steps.meta.outputs.tag }}
 
       # --- Only reached if scans passed; never on PRs ---
       - name: Login to registry (ghcr stands in for Harbor)
