@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.target }}   # configure required reviewers on these environments
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Pick source env tag (canary gets staging's tag, prod gets canary's tag)
         id: src
         run: |
